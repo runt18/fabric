@@ -120,7 +120,7 @@ class TestTask(unittest.TestCase):
     def test_aliases_are_set_based_on_provided_aliases(self):
         aliases = ["a_%d" % i for i in range(random.randint(1, 10))]
         task = Task(aliases=aliases)
-        self.assertTrue(all([a in task.aliases for a in aliases]))
+        self.assertTrue(all(a in task.aliases for a in aliases))
 
     def test_aliases_are_None_by_default(self):
         task = Task()
