@@ -40,7 +40,7 @@ class TestWrappedCallableTask(unittest.TestCase):
 
     def test_passes_unused_kwargs_to_parent(self):
         random_range = range(random.randint(1, 10))
-        kwargs = dict([("key_%s" % i, i) for i in random_range])
+        kwargs = {"key_%s" % i: i for i in random_range}
 
         def foo(): pass
         try:
@@ -55,7 +55,7 @@ class TestWrappedCallableTask(unittest.TestCase):
         task = WrappedCallableTask(foo, *args)
 
     def test_allows_any_number_of_kwargs(self):
-        kwargs = dict([("key%d" % i, i) for i in range(random.randint(0, 10))])
+        kwargs = {"key%d" % i: i for i in range(random.randint(0, 10))}
         def foo(): pass
         task = WrappedCallableTask(foo, **kwargs)
 
