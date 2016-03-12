@@ -39,7 +39,7 @@ class OutputLooper(object):
         self.capture = capture
         self.timeout = timeout
         self.read_func = getattr(chan, attr)
-        self.prefix = "[%s] %s: " % (
+        self.prefix = "[{0!s}] {1!s}: ".format(
             env.host_string,
             "out" if attr == 'recv' else "err"
         )

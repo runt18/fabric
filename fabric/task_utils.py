@@ -40,9 +40,9 @@ def merge(hosts, roles, exclude, roledefs):
     # Abort if any roles don't exist
     bad_roles = [x for x in roles if x not in roledefs]
     if bad_roles:
-        abort("The following specified roles do not exist:\n%s" % (
+        abort("The following specified roles do not exist:\n{0!s}".format((
             indent(bad_roles)
-        ))
+        )))
 
     # Coerce strings to one-item lists
     if isinstance(hosts, basestring):

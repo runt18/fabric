@@ -33,7 +33,7 @@ class FileCleaner(Integration):
         for created in self.local:
             os.unlink(created)
         for created in self.remote:
-            run("rm %s" % escape(created))
+            run("rm {0!s}".format(escape(created)))
 
 
 class TestTildeExpansion(FileCleaner):
@@ -46,13 +46,13 @@ class TestTildeExpansion(FileCleaner):
     def test_exists(self):
         for target in ('~/exists_test', '~/exists test with space'):
             self.remote.append(target)
-            run("touch %s" % escape(target))
+            run("touch {0!s}".format(escape(target)))
             expect(target)
      
     def test_sed(self):
         for target in ('~/sed_test', '~/sed test with space'):
             self.remote.append(target)
-            run("echo 'before' > %s" % escape(target))
+            run("echo 'before' > {0!s}".format(escape(target)))
             files.sed(target, 'before', 'after')
             expect_contains(target, 'after')
      
@@ -61,8 +61,8 @@ class TestTildeExpansion(FileCleaner):
             '~/upload_template_test',
             '~/upload template test with space'
         )):
-            src = "source%s" % i
-            local("touch %s" % src)
+            src = "source{0!s}".format(i)
+            local("touch {0!s}".format(src))
             self.local.append(src)
             self.remote.append(target)
             files.upload_template(src, target)
@@ -92,9 +92,9 @@ rsync_sources = (
 
 class TestRsync(Integration):
     def rsync(self, id_, **kwargs):
-        remote = '/tmp/rsync-test-%s/' % id_
+        remote = '/tmp/rsync-test-{0!s}/'.format(id_)
         if files.exists(remote):
-            run("rm -rf %s" % remote)
+            run("rm -rf {0!s}".format(remote))
         return project.rsync_project(
             remote_dir=remote,
             local_dir='integration',
@@ -109,7 +109,7 @@ class TestRsync(Integration):
         """
         r = self.rsync(1)
         for x in rsync_sources:
-            assert re.search(r'^%s$' % x, r.stdout, re.M), "'%s' was not found in '%s'" % (x, r.stdout)
+            assert re.search(r'^{0!s}$'.format(x), r.stdout, re.M), "'{0!s}' was not found in '{1!s}'".format(x, r.stdout)
 
     def test_overriding_default_args(self):
         """
@@ -117,14 +117,14 @@ class TestRsync(Integration):
         """
         r = self.rsync(2, default_opts='-pthrz')
         for x in rsync_sources:
-            assert not re.search(r'^%s$' % x, r.stdout, re.M), "'%s' was found in '%s'" % (x, r.stdout)
+            assert not re.search(r'^{0!s}$'.format(x), r.stdout, re.M), "'{0!s}' was found in '{1!s}'".format(x, r.stdout)
 
 
 class TestUploadTemplate(FileCleaner):
     def test_allows_pty_disable(self):
         src = "source_file"
         target = "remote_file"
-        local("touch %s" % src)
+        local("touch {0!s}".format(src))
         self.local.append(src)
         self.remote.append(target)
         # Just make sure it doesn't asplode. meh.

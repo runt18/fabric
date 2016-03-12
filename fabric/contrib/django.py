@@ -91,4 +91,4 @@ def project(name):
     Uses `settings_module` -- see its documentation for details on why and how
     to use this functionality.
     """
-    settings_module('%s.settings' % name)
+    settings_module('{0!s}.settings'.format(name))
