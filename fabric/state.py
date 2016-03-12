@@ -61,7 +61,7 @@ def _rc_path():
     if expanded_rc_path == rc_path and win32:
             from win32com.shell.shell import SHGetSpecialFolderPath
             from win32com.shell.shellcon import CSIDL_PROFILE
-            expanded_rc_path = "%s/%s" % (
+            expanded_rc_path = "{0!s}/{1!s}".format(
                 SHGetSpecialFolderPath(0, CSIDL_PROFILE),
                 rc_file
                 )

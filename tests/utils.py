@@ -46,7 +46,7 @@ class FabricTest(object):
         self.tmpdir = tempfile.mkdtemp()
 
     def set_network(self):
-        env.update(to_dict('%s@%s:%s' % (USER, HOST, PORT)))
+        env.update(to_dict('{0!s}@{1!s}:{2!s}'.format(USER, HOST, PORT)))
 
     def env_setup(self):
         # Set up default networking for test server
@@ -127,7 +127,7 @@ def password_response(password, times_called=None, silent=True):
 def _assert_contains(needle, haystack, invert):
     matched = re.search(needle, haystack, re.M)
     if (invert and matched) or (not invert and not matched):
-        raise AssertionError("r'%s' %sfound in '%s'" % (
+        raise AssertionError("r'{0!s}' {1!s}found in '{2!s}'".format(
             needle,
             "" if invert else "not ",
             haystack
@@ -154,18 +154,18 @@ def eq_(result, expected, msg=None):
 --------------------------------- aka -----------------------------------------
 
 Expected:
-%(expected)r
+{expected!r}
 
 Got:
-%(result)r
-""" % params
+{result!r}
+""".format(**params)
     default_msg = """
 Expected:
-%(expected)s
+{expected!s}
 
 Got:
-%(result)s
-""" % params
+{result!s}
+""".format(**params)
     if (repr(result) != str(result)) or (repr(expected) != str(expected)):
         default_msg += aka
     assert result == expected, msg or default_msg

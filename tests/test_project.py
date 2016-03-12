@@ -88,7 +88,7 @@ class UploadProjectTestCase(unittest.TestCase):
         # local() is called more than once so we need an extra next_call()
         # otherwise fudge compares the args to the last call to local()
         self.fake_local.with_args(
-            arg.endswith("-C %s %s" % (cwd_path, cwd_name))
+            arg.endswith("-C {0!s} {1!s}".format(cwd_path, cwd_name))
         ).next_call()
 
         # Exercise
@@ -104,7 +104,7 @@ class UploadProjectTestCase(unittest.TestCase):
         # local() is called more than once so we need an extra next_call()
         # otherwise fudge compares the args to the last call to local()
         self.fake_local.with_args(
-            arg.endswith("-C %s %s" % os.path.split(project_path))
+            arg.endswith("-C {0!s} {1!s}".format(*os.path.split(project_path)))
         ).next_call()
 
         # Exercise
@@ -121,11 +121,11 @@ class UploadProjectTestCase(unittest.TestCase):
         # local() is called more than once so we need an extra next_call()
         # otherwise fudge compares the args to the last call to local()
         self.fake_local.with_args(
-            arg.endswith("-C %s %s" % (project_path, base))
+            arg.endswith("-C {0!s} {1!s}".format(project_path, base))
         ).next_call()
 
         # Exercise
-        project.upload_project(local_dir="%s/%s/" % (project_path, base))
+        project.upload_project(local_dir="{0!s}/{1!s}/".format(project_path, base))
 
 
     @fudge.with_fakes
@@ -137,7 +137,7 @@ class UploadProjectTestCase(unittest.TestCase):
         # local() is called more than once so we need an extra next_call()
         # otherwise fudge compares the args to the last call to local()
         self.fake_put.with_args(
-            "%s/folder.tar.gz" % self.fake_tmp, "folder.tar.gz", use_sudo=False
+            "{0!s}/folder.tar.gz".format(self.fake_tmp), "folder.tar.gz", use_sudo=False
         ).next_call()
 
         # Exercise
@@ -153,7 +153,7 @@ class UploadProjectTestCase(unittest.TestCase):
         # local() is called more than once so we need an extra next_call()
         # otherwise fudge compares the args to the last call to local()
         self.fake_put.with_args(
-            "%s/folder.tar.gz" % self.fake_tmp, "%s/folder.tar.gz" % remote_path, use_sudo=False
+            "{0!s}/folder.tar.gz".format(self.fake_tmp), "{0!s}/folder.tar.gz".format(remote_path), use_sudo=False
         ).next_call()
 
         # Exercise

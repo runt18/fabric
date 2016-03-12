@@ -330,7 +330,7 @@ class BaseServer:
 
         """
         print('-' * 40)
-        print('Exception happened during processing of request from %s' % (client_address,))
+        print('Exception happened during processing of request from {0!s}'.format(client_address))
         import traceback
         traceback.print_exc()  # XXX But this goes to stderr!
         print('-' * 40)
@@ -510,8 +510,7 @@ class ForkingMixIn:
             try:
                 self.active_children.remove(pid)
             except ValueError, e:
-                raise ValueError('%s. x=%d and list=%r' % \
-                                    (e.message, pid, self.active_children))
+                raise ValueError('{0!s}. x={1:d} and list={2!r}'.format(e.message, pid, self.active_children))
 
     def handle_timeout(self):
         """Wait for zombies after self.timeout seconds of inactivity.

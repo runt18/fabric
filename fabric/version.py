@@ -16,7 +16,7 @@ def git_sha():
     loc = abspath(dirname(__file__))
     try:
         p = Popen(
-            "cd \"%s\" && git log -1 --format=format:%%h" % loc,
+            "cd \"{0!s}\" && git log -1 --format=format:%h".format(loc),
             shell=True,
             stdout=PIPE,
             stderr=PIPE
@@ -47,7 +47,7 @@ def get_version(form='short'):
     """
     # Setup
     versions = {}
-    branch = "%s.%s" % (VERSION[0], VERSION[1])
+    branch = "{0!s}.{1!s}".format(VERSION[0], VERSION[1])
     tertiary = VERSION[2]
     type_ = VERSION[3]
     final = (type_ == "final")
@@ -96,7 +96,7 @@ def get_version(form='short'):
     except KeyError:
         if form == 'all':
             return versions
-        raise TypeError('"%s" is not a valid form specifier.' % form)
+        raise TypeError('"{0!s}" is not a valid form specifier.'.format(form))
 
 __version__ = get_version('short')
 

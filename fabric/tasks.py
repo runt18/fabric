@@ -46,13 +46,13 @@ def get_task_details(task):
     args_without_defaults = argspec.args[:len(argspec.args) - num_default_args]
     args_with_defaults = argspec.args[-1 * num_default_args:]
 
-    details.append('Arguments: %s' % (
+    details.append('Arguments: {0!s}'.format((
         ', '.join(
             args_without_defaults + [
-                '%s=%r' % (arg, default)
+                '{0!s}={1!r}'.format(arg, default)
                 for arg, default in zip(args_with_defaults, default_args)
             ])
-    ))
+    )))
 
     return '\n'.join(details)
 
@@ -138,7 +138,7 @@ class Task(object):
         pool_size = min((pool_size, len(hosts)))
         # Inform user of final pool size for this task
         if state.output.debug:
-            print("Parallel tasks now using pool size of %d" % pool_size)
+            print("Parallel tasks now using pool size of {0:d}".format(pool_size))
         return pool_size
 
 
@@ -216,7 +216,7 @@ def _execute(task, host, my_env, args, kwargs, jobs, queue, multiprocessing):
     """
     # Log to stdout
     if state.output.running and not hasattr(task, 'return_value'):
-        print("[%s] Executing task '%s'" % (host, my_env['command']))
+        print("[{0!s}] Executing task '{1!s}'".format(host, my_env['command']))
     # Create per-run env with connection settings
     local_env = to_dict(host)
     local_env.update(my_env)
@@ -249,7 +249,7 @@ def _execute(task, host, my_env, args, kwargs, jobs, queue, multiprocessing):
                 if e.__class__ is not SystemExit:
                     if not (isinstance(e, NetworkError) and
                             _is_network_error_ignored()):
-                        sys.stderr.write("!!! Parallel execution exception under host %r:\n" % name)
+                        sys.stderr.write("!!! Parallel execution exception under host {0!r}:\n".format(name))
                     submit(e)
                 # Here, anything -- unexpected exceptions, or abort()
                 # driven SystemExits -- will bubble up and terminate the
@@ -333,7 +333,7 @@ def execute(task, *args, **kwargs):
         my_env['command'] = task
         task = crawl(task, state.commands)
         if task is None:
-            msg = "%r is not callable or a valid task name" % (my_env['command'],)
+            msg = "{0!r} is not callable or a valid task name".format(my_env['command'])
             if state.env.get('skip_unknown_tasks', False):
                 warn(msg)
                 return
@@ -402,9 +402,9 @@ def execute(task, *args, **kwargs):
 
         # If running in parallel, block until job queue is emptied
         if jobs:
-            err = "One or more hosts failed while executing task '%s'" % (
+            err = "One or more hosts failed while executing task '{0!s}'".format((
                 my_env['command']
-            )
+            ))
             jobs.close()
             # Abort if any children did not exit cleanly (fail-fast).
             # This prevents Fabric from continuing on to any other tasks.

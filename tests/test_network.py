@@ -43,7 +43,7 @@ class TestNetwork(FabricTest):
             ("Both username and port tested at once, for kicks",
                 'localhost', username + '@localhost:22'),
         ):
-            eq_.description = "Host-string normalization: %s" % description
+            eq_.description = "Host-string normalization: {0!s}".format(description)
             yield eq_, normalize(input), normalize(output_)
             del eq_.description
 
@@ -66,7 +66,7 @@ class TestNetwork(FabricTest):
             ("Username and IPv6 address with non-standard port",
                 'user@[2001:DB8::1]:1222', ('user', '2001:DB8::1', '1222')),
         ):
-            eq_.description = "Host-string IPv6 normalization: %s" % description
+            eq_.description = "Host-string IPv6 normalization: {0!s}".format(description)
             yield eq_, normalize(input), output_
             del eq_.description
 
@@ -138,7 +138,7 @@ class TestNetwork(FabricTest):
             ("IPv6 address",
                 '2001:DB8::1', username + '@[2001:DB8::1]:22'),
         ):
-            eq_.description = "Host-string denormalization: %s" % description
+            eq_.description = "Host-string denormalization: {0!s}".format(description)
             yield eq_, denormalize(string1), denormalize(string2)
             del eq_.description
 
@@ -258,7 +258,7 @@ class TestNetwork(FabricTest):
         cmd = "ls /"
         output_string = RESPONSES[cmd]
         # TODO: fix below lines, duplicates inner workings of tested code
-        prefix = "[%s] out: " % env.host_string
+        prefix = "[{0!s}] out: ".format(env.host_string)
         expected = prefix + ('\n' + prefix).join(output_string.split('\n'))
         # Create, tie off thread
         with settings(show('everything'), hide('running')):
@@ -324,7 +324,7 @@ class TestNetwork(FabricTest):
         output.everything = False
         with password_response(PASSWORDS[env.user], silent=False):
             run("ls /simple")
-        regex = r'^\[%s\] Login password for \'%s\': ' % (env.host_string, env.user)
+        regex = r'^\[{0!s}\] Login password for \'{1!s}\': '.format(env.host_string, env.user)
         assert_contains(regex, sys.stderr.getvalue())
 
     @mock_streams('stderr')
@@ -339,7 +339,7 @@ class TestNetwork(FabricTest):
         output.everything = False
         with password_response(CLIENT_PRIVKEY_PASSPHRASE, silent=False):
             run("ls /simple")
-        regex = r'^\[%s\] Login password for \'%s\': ' % (env.host_string, env.user)
+        regex = r'^\[{0!s}\] Login password for \'{1!s}\': '.format(env.host_string, env.user)
         assert_contains(regex, sys.stderr.getvalue())
 
     def test_sudo_prompt_display_passthrough(self):
@@ -369,24 +369,24 @@ class TestNetwork(FabricTest):
             sudo('oneliner')
         if display_output:
             expected = """
-[%(prefix)s] sudo: oneliner
-[%(prefix)s] Login password for '%(user)s': 
-[%(prefix)s] out: sudo password:
-[%(prefix)s] out: Sorry, try again.
-[%(prefix)s] out: sudo password: 
-[%(prefix)s] out: result
-""" % {'prefix': env.host_string, 'user': env.user}
+[{prefix!s}] sudo: oneliner
+[{prefix!s}] Login password for '{user!s}': 
+[{prefix!s}] out: sudo password:
+[{prefix!s}] out: Sorry, try again.
+[{prefix!s}] out: sudo password: 
+[{prefix!s}] out: result
+""".format(**{'prefix': env.host_string, 'user': env.user})
         else:
             # Note lack of first sudo prompt (as it's autoresponded to) and of
             # course the actual result output.
             expected = """
-[%(prefix)s] sudo: oneliner
-[%(prefix)s] Login password for '%(user)s': 
-[%(prefix)s] out: Sorry, try again.
-[%(prefix)s] out: sudo password: """ % {
+[{prefix!s}] sudo: oneliner
+[{prefix!s}] Login password for '{user!s}': 
+[{prefix!s}] out: Sorry, try again.
+[{prefix!s}] out: sudo password: """.format(**{
     'prefix': env.host_string,
     'user': env.user
-}
+})
         eq_(expected[1:], sys.stdall.getvalue())
 
     @mock_streams('both')
@@ -408,17 +408,17 @@ class TestNetwork(FabricTest):
             sudo('oneliner')
             sudo('twoliner')
         expected = """
-[%(prefix)s] sudo: oneliner
-[%(prefix)s] Login password for '%(user)s': 
-[%(prefix)s] out: sudo password:
-[%(prefix)s] out: Sorry, try again.
-[%(prefix)s] out: sudo password: 
-[%(prefix)s] out: result
-[%(prefix)s] sudo: twoliner
-[%(prefix)s] out: sudo password:
-[%(prefix)s] out: result1
-[%(prefix)s] out: result2
-""" % {'prefix': env.host_string, 'user': env.user}
+[{prefix!s}] sudo: oneliner
+[{prefix!s}] Login password for '{user!s}': 
+[{prefix!s}] out: sudo password:
+[{prefix!s}] out: Sorry, try again.
+[{prefix!s}] out: sudo password: 
+[{prefix!s}] out: result
+[{prefix!s}] sudo: twoliner
+[{prefix!s}] out: sudo password:
+[{prefix!s}] out: result1
+[{prefix!s}] out: result2
+""".format(**{'prefix': env.host_string, 'user': env.user})
         eq_(sys.stdall.getvalue(), expected[1:])
 
     @mock_streams('both')
@@ -444,13 +444,13 @@ class TestNetwork(FabricTest):
                 run('normal')
                 run('silent')
         expected = """
-[%(prefix)s] run: normal
-[%(prefix)s] Login password for '%(user)s': 
-[%(prefix)s] out: foo
-[%(prefix)s] run: silent
-[%(prefix)s] run: normal
-[%(prefix)s] out: foo
-""" % {'prefix': env.host_string, 'user': env.user}
+[{prefix!s}] run: normal
+[{prefix!s}] Login password for '{user!s}': 
+[{prefix!s}] out: foo
+[{prefix!s}] run: silent
+[{prefix!s}] run: normal
+[{prefix!s}] out: foo
+""".format(**{'prefix': env.host_string, 'user': env.user})
         eq_(expected[1:], sys.stdall.getvalue())
 
     @mock_streams('both')
@@ -472,13 +472,13 @@ class TestNetwork(FabricTest):
             run('oneliner')
             run('twoliner')
         expected = """
-[%(prefix)s] run: oneliner
-[%(prefix)s] Login password for '%(user)s': 
-[%(prefix)s] out: result
-[%(prefix)s] run: twoliner
-[%(prefix)s] out: result1
-[%(prefix)s] out: result2
-""" % {'prefix': env.host_string, 'user': env.user}
+[{prefix!s}] run: oneliner
+[{prefix!s}] Login password for '{user!s}': 
+[{prefix!s}] out: result
+[{prefix!s}] run: twoliner
+[{prefix!s}] out: result1
+[{prefix!s}] out: result2
+""".format(**{'prefix': env.host_string, 'user': env.user})
         eq_(expected[1:], sys.stdall.getvalue())
 
     @mock_streams('both')
@@ -501,13 +501,13 @@ class TestNetwork(FabricTest):
                 run('oneliner')
                 run('twoliner')
         expected = """
-[%(prefix)s] run: oneliner
-[%(prefix)s] Login password for '%(user)s': 
+[{prefix!s}] run: oneliner
+[{prefix!s}] Login password for '{user!s}': 
 result
-[%(prefix)s] run: twoliner
+[{prefix!s}] run: twoliner
 result1
 result2
-""" % {'prefix': env.host_string, 'user': env.user}
+""".format(**{'prefix': env.host_string, 'user': env.user})
         eq_(expected[1:], sys.stdall.getvalue())
 
     @server()
