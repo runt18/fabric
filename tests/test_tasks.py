@@ -40,7 +40,7 @@ class TestWrappedCallableTask(unittest.TestCase):
 
     def test_passes_unused_kwargs_to_parent(self):
         random_range = range(random.randint(1, 10))
-        kwargs = {"key_%s" % i: i for i in random_range}
+        kwargs = {"key_{0!s}".format(i): i for i in random_range}
 
         def foo(): pass
         try:
@@ -55,7 +55,7 @@ class TestWrappedCallableTask(unittest.TestCase):
         task = WrappedCallableTask(foo, *args)
 
     def test_allows_any_number_of_kwargs(self):
-        kwargs = {"key%d" % i: i for i in range(random.randint(0, 10))}
+        kwargs = {"key{0:d}".format(i): i for i in range(random.randint(0, 10))}
         def foo(): pass
         task = WrappedCallableTask(foo, **kwargs)
 
@@ -66,7 +66,7 @@ class TestWrappedCallableTask(unittest.TestCase):
 
     def test_name_is_the_name_of_the_wrapped_callable(self):
         def foo(): pass
-        foo.__name__ = "random_name_%d" % random.randint(1000, 2000)
+        foo.__name__ = "random_name_{0:d}".format(random.randint(1000, 2000))
         task = WrappedCallableTask(foo)
         eq_(task.name, foo.__name__)
 
@@ -77,12 +77,12 @@ class TestWrappedCallableTask(unittest.TestCase):
 
     def test_reads_double_under_doc_from_callable(self):
         def foo(): pass
-        foo.__doc__ = "Some random __doc__: %d" % random.randint(1000, 2000)
+        foo.__doc__ = "Some random __doc__: {0:d}".format(random.randint(1000, 2000))
         task = WrappedCallableTask(foo)
         eq_(task.__doc__, foo.__doc__)
 
     def test_dispatches_to_wrapped_callable_on_run(self):
-        random_value = "some random value %d" % random.randint(1000, 2000)
+        random_value = "some random value {0:d}".format(random.randint(1000, 2000))
         def foo(): return random_value
         task = WrappedCallableTask(foo)
         eq_(random_value, task())
@@ -113,12 +113,12 @@ class TestWrappedCallableTask(unittest.TestCase):
 
 class TestTask(unittest.TestCase):
     def test_takes_an_alias_kwarg_and_wraps_it_in_aliases_list(self):
-        random_alias = "alias_%d" % random.randint(100, 200)
+        random_alias = "alias_{0:d}".format(random.randint(100, 200))
         task = Task(alias=random_alias)
         self.assertTrue(random_alias in task.aliases)
 
     def test_aliases_are_set_based_on_provided_aliases(self):
-        aliases = ["a_%d" % i for i in range(random.randint(1, 10))]
+        aliases = ["a_{0:d}".format(i) for i in range(random.randint(1, 10))]
         task = Task(aliases=aliases)
         self.assertTrue(all(a in task.aliases for a in aliases))
 
@@ -353,7 +353,7 @@ class TestExecute(FabricTest):
         Networked but serial tasks should return per-host-string dict
         """
         ports = [2200, 2201]
-        hosts = map(lambda x: '127.0.0.1:%s' % x, ports)
+        hosts = map(lambda x: '127.0.0.1:{0!s}'.format(x), ports)
         def task():
             run("ls /simple")
             return "foo"

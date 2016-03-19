@@ -47,7 +47,7 @@ def abort(msg):
         from colors import red
 
     if output.aborts:
-        sys.stderr.write(red("\nFatal error: %s\n" % _encode(msg, sys.stderr)))
+        sys.stderr.write(red("\nFatal error: {0!s}\n".format(_encode(msg, sys.stderr))))
         sys.stderr.write(red("\nAborting.\n"))
 
     if env.abort_exception:
@@ -80,7 +80,7 @@ def warn(msg):
 
     if output.warnings:
         msg = _encode(msg, sys.stderr)
-        sys.stderr.write(magenta("\nWarning: %s\n\n" % msg))
+        sys.stderr.write(magenta("\nWarning: {0!s}\n\n".format(msg)))
 
 
 def indent(text, spaces=4, strip=False):
@@ -138,7 +138,7 @@ def puts(text, show_prefix=None, end="\n", flush=False):
     if output.user:
         prefix = ""
         if env.host_string and show_prefix:
-            prefix = "[%s] " % env.host_string
+            prefix = "[{0!s}] ".format(env.host_string)
         sys.stdout.write(prefix + _encode(text, sys.stdout) + end)
         if flush:
             sys.stdout.flush()
@@ -172,7 +172,7 @@ def fastprint(text, show_prefix=False, end="", flush=True):
 
 def handle_prompt_abort(prompt_for):
     import fabric.state
-    reason = "Needed to prompt for %s (host: %s), but %%s" % (
+    reason = "Needed to prompt for {0!s} (host: {1!s}), but %s".format(
         prompt_for, fabric.state.env.host_string
     )
     # Explicit "don't prompt me bro"
@@ -363,7 +363,7 @@ def _format_error_output(header, body):
     header_side_length = (term_width - (len(header) + 2)) / 2
     mark = "="
     side = mark * header_side_length
-    return "\n\n%s %s %s\n\n%s\n\n%s" % (
+    return "\n\n{0!s} {1!s} {2!s}\n\n{3!s}\n\n{4!s}".format(
         side, header, side, body, mark * term_width
     )
 

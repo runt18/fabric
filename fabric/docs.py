@@ -53,5 +53,5 @@ def unwrap_tasks(module, hide_nontasks=False):
                 continue
             has_docstring = getattr(obj, '__doc__', False)
             if hide_nontasks and has_docstring and not name.startswith('_'):
-                setattr(module, '_%s' % name, obj)
+                setattr(module, '_{0!s}'.format(name), obj)
                 delattr(module, name)

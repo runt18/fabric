@@ -540,12 +540,11 @@ def remote_tunnel(remote_port, local_port=None, local_host="localhost",
         try:
             sock.connect((local_host, local_port))
         except Exception, e:
-            print "[%s] rtunnel: cannot connect to %s:%d (from local)" % (env.host_string, local_host, local_port)
+            print "[{0!s}] rtunnel: cannot connect to {1!s}:{2:d} (from local)".format(env.host_string, local_host, local_port)
             channel.close()
             return
 
-        print "[%s] rtunnel: opened reverse tunnel: %r -> %r -> %r"\
-              % (env.host_string, channel.origin_addr,
+        print "[{0!s}] rtunnel: opened reverse tunnel: {1!r} -> {2!r} -> {3!r}".format(env.host_string, channel.origin_addr,
                  channel.getpeername(), (local_host, local_port))
 
         th = ThreadHandler('fwd', _forwarder, channel, sock)

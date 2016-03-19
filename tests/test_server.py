@@ -93,6 +93,6 @@ def test_list_folder():
         # Grab filename from SFTPAttribute objects in result
         output = map(lambda x: x.filename, results)
         # Yield test generator
-        eq_.description = "list_folder: %s" % desc
+        eq_.description = "list_folder: {0!s}".format(desc)
         yield eq_, set(expected), set(output)
         del eq_.description

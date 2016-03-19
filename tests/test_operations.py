@@ -184,7 +184,7 @@ def test_prompt_with_default():
     s = "This is my prompt"
     d = "default!"
     prompt(s, default=d)
-    eq_(sys.stdout.getvalue(), "%s [%s] " % (s, d))
+    eq_(sys.stdout.getvalue(), "{0!s} [{1!s}] ".format(s, d))
 
 
 #
@@ -197,7 +197,7 @@ def test_sudo_prefix_with_user():
     """
     eq_(
         _sudo_prefix(user="foo", group=None),
-        "%s -u \"foo\" " % (env.sudo_prefix % env)
+        "{0!s} -u \"foo\" ".format((env.sudo_prefix % env))
     )
 
 
@@ -214,7 +214,7 @@ def test_sudo_prefix_with_group():
     """
     eq_(
         _sudo_prefix(user=None, group="foo"),
-        "%s -g \"foo\" " % (env.sudo_prefix % env)
+        "{0!s} -g \"foo\" ".format((env.sudo_prefix % env))
     )
 
 
@@ -224,7 +224,7 @@ def test_sudo_prefix_with_user_and_group():
     """
     eq_(
         _sudo_prefix(user="foo", group="bar"),
-        "%s -u \"foo\" -g \"bar\" " % (env.sudo_prefix % env)
+        "{0!s} -u \"foo\" -g \"bar\" ".format((env.sudo_prefix % env))
     )
 
 
@@ -234,15 +234,15 @@ def test_shell_wrap():
     command = "command"
     for description, shell, sudo_prefix, result in (
         ("shell=True, sudo_prefix=None",
-            True, None, '%s "%s"' % (env.shell, command)),
+            True, None, '{0!s} "{1!s}"'.format(env.shell, command)),
         ("shell=True, sudo_prefix=string",
-            True, prefix, prefix + ' %s "%s"' % (env.shell, command)),
+            True, prefix, prefix + ' {0!s} "{1!s}"'.format(env.shell, command)),
         ("shell=False, sudo_prefix=None",
             False, None, command),
         ("shell=False, sudo_prefix=string",
             False, prefix, prefix + " " + command),
     ):
-        eq_.description = "_shell_wrap: %s" % description
+        eq_.description = "_shell_wrap: {0!s}".format(description)
         yield eq_, _shell_wrap(command, shell_escape=True, shell=shell, sudo_prefix=sudo_prefix), result
         del eq_.description
 
@@ -255,7 +255,7 @@ def test_shell_wrap_escapes_command_if_shell_is_true():
     cmd = "cd \"Application Support\""
     eq_(
         _shell_wrap(cmd, shell_escape=True, shell=True),
-        '%s "%s"' % (env.shell, _shell_escape(cmd))
+        '{0!s} "{1!s}"'.format(env.shell, _shell_escape(cmd))
     )
 
 
@@ -267,7 +267,7 @@ def test_shell_wrap_does_not_escape_command_if_shell_is_true_and_shell_escape_is
     cmd = "cd \"Application Support\""
     eq_(
         _shell_wrap(cmd, shell_escape=False, shell=True),
-        '%s "%s"' % (env.shell, cmd)
+        '{0!s} "{1!s}"'.format(env.shell, cmd)
     )
 
 
@@ -576,7 +576,7 @@ class TestFileTransfers(FabricTest):
             fd.write("foo")
         with hide('stdout', 'running'):
             get(target, local)
-        assert "%s already exists" % local in sys.stderr.getvalue()
+        assert "{0!s} already exists".format(local) in sys.stderr.getvalue()
         eq_contents(local, FILES[target])
 
     @server()
@@ -596,11 +596,11 @@ class TestFileTransfers(FabricTest):
     @server(port=2201)
     def test_get_from_multiple_servers(self):
         ports = [2200, 2201]
-        hosts = map(lambda x: '127.0.0.1:%s' % x, ports)
+        hosts = map(lambda x: '127.0.0.1:{0!s}'.format(x), ports)
         with settings(all_hosts=hosts):
             for port in ports:
                 with settings(
-                    hide('everything'), host_string='127.0.0.1:%s' % port
+                    hide('everything'), host_string='127.0.0.1:{0!s}'.format(port)
                 ):
                     tmp = self.path('')
                     local_path = os.path.join(tmp, "%(host)s", "%(path)s")
@@ -608,12 +608,12 @@ class TestFileTransfers(FabricTest):
                     path = 'file.txt'
                     get(path, local_path)
                     assert self.exists_locally(os.path.join(
-                        tmp, "127.0.0.1-%s" % port, path
+                        tmp, "127.0.0.1-{0!s}".format(port), path
                     ))
                     # Nested file
                     get('tree/subfolder/file3.txt', local_path)
                     assert self.exists_locally(os.path.join(
-                        tmp, "127.0.0.1-%s" % port, 'file3.txt'
+                        tmp, "127.0.0.1-{0!s}".format(port), 'file3.txt'
                     ))
 
     @server()
@@ -732,13 +732,13 @@ class TestFileTransfers(FabricTest):
         # the sha1 hash is the unique filename of the file being downloaded. sha1(<filename>)
         name = "229a29e5693876645e39de0cb0532e43ad73311a"
         fake_run = Fake('_run_command', callable=True, expect_call=True).with_matching_args(
-            'cp -p "/etc/apache2/apache2.conf" "%s"' % name, True, True, None,
+            'cp -p "/etc/apache2/apache2.conf" "{0!s}"'.format(name), True, True, None,
         ).next_call().with_matching_args(
-            'chown username "%s"' % name, True, True, None,
+            'chown username "{0!s}"'.format(name), True, True, None,
         ).next_call().with_matching_args(
-            'chmod 400 "%s"' % name, True, True, None,
+            'chmod 400 "{0!s}"'.format(name), True, True, None,
         ).next_call().with_matching_args(
-            'rm -f "%s"' % name, True, True, None,
+            'rm -f "{0!s}"'.format(name), True, True, None,
         )
         fake_get = Fake('get', callable=True, expect_call=True).with_args(
             name, fudge_arg.any_value())
@@ -759,16 +759,16 @@ class TestFileTransfers(FabricTest):
         # the sha1 hash is the unique filename of the file being downloaded. sha1(<filename>)
         name = "229a29e5693876645e39de0cb0532e43ad73311a"
         fake_run = Fake('_run_command', callable=True, expect_call=True).with_matching_args(
-            'cp -p "/etc/apache2/apache2.conf" "/tmp/%s"' % name, True, True, None,
+            'cp -p "/etc/apache2/apache2.conf" "/tmp/{0!s}"'.format(name), True, True, None,
         ).next_call().with_matching_args(
-            'chown username "/tmp/%s"' % name, True, True, None,
+            'chown username "/tmp/{0!s}"'.format(name), True, True, None,
         ).next_call().with_matching_args(
-            'chmod 400 "/tmp/%s"' % name, True, True, None,
+            'chmod 400 "/tmp/{0!s}"'.format(name), True, True, None,
         ).next_call().with_matching_args(
-            'rm -f "/tmp/%s"' % name, True, True, None,
+            'rm -f "/tmp/{0!s}"'.format(name), True, True, None,
         )
         fake_get = Fake('get', callable=True, expect_call=True).with_args(
-            '/tmp/%s' % name, fudge_arg.any_value())
+            '/tmp/{0!s}'.format(name), fudge_arg.any_value())
 
         with hide('everything'):
             with patched_context('fabric.operations', '_run_command', fake_run):
@@ -982,7 +982,7 @@ class TestFileTransfers(FabricTest):
             fd.write('test')
         with nested(cd(d), hide('everything')):
             put(local, f)
-        assert self.exists_remotely('%s/%s' % (d, f))
+        assert self.exists_remotely('{0!s}/{1!s}'.format(d, f))
 
     @server(files={'/tmp/test.txt': 'test'})
     def test_cd_should_apply_to_get(self):
@@ -1030,7 +1030,7 @@ class TestFileTransfers(FabricTest):
             fd.write("contents")
         with nested(lcd(self.path(d)), hide('everything')):
             put(f, '/')
-        assert self.exists_remotely('/%s' % f)
+        assert self.exists_remotely('/{0!s}'.format(f))
 
     @server()
     def test_lcd_should_apply_to_get(self):
@@ -1082,7 +1082,7 @@ def test_local_output_and_capture():
                 else:
                     shows.append('stderr')
                 with nested(hide(*hides), show(*shows)):
-                    d = "local(): capture: %r, stdout: %r, stderr: %r" % (
+                    d = "local(): capture: {0!r}, stdout: {1!r}, stderr: {2!r}".format(
                         capture, stdout, stderr
                     )
                     local.description = d

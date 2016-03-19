@@ -109,7 +109,7 @@ class SFTP(object):
         from fabric.api import sudo, hide
         if use_sudo:
             with hide('everything'):
-                sudo('mkdir "%s"' % path)
+                sudo('mkdir "{0!s}"'.format(path))
         else:
             self.ftp.mkdir(path)
 
@@ -143,7 +143,7 @@ class SFTP(object):
                 local_path = os.path.join(local_path, path_vars['basename'])
 
         if output.running:
-            print("[%s] download: %s <- %s" % (
+            print("[{0!s}] download: {1!s} <- {2!s}".format(
                 env.host_string,
                 _format_local(local_path, local_is_path),
                 remote_path
@@ -165,11 +165,11 @@ class SFTP(object):
             # Temporarily nuke 'cwd' so sudo() doesn't "cd" its mv command.
             # (The target path has already been cwd-ified elsewhere.)
             with settings(hide('everything'), cwd=""):
-                sudo('cp -p "%s" "%s"' % (remote_path, target_path))
+                sudo('cp -p "{0!s}" "{1!s}"'.format(remote_path, target_path))
                 # The user should always own the copied file.
-                sudo('chown %s "%s"' % (env.user, target_path))
+                sudo('chown {0!s} "{1!s}"'.format(env.user, target_path))
                 # Only root and the user has the right to read the file
-                sudo('chmod %o "%s"' % (0400, target_path))
+                sudo('chmod {0:o} "{1!s}"'.format(0400, target_path))
                 remote_path = target_path
 
         try:
@@ -184,7 +184,7 @@ class SFTP(object):
             # try to remove the temporary file after the download
             if use_sudo:
                 with settings(hide('everything'), cwd=""):
-                    sudo('rm -f "%s"' % remote_path)
+                    sudo('rm -f "{0!s}"'.format(remote_path))
 
         # Return local_path object for posterity. (If mutated, caller will want
         # to know.)
@@ -239,7 +239,7 @@ class SFTP(object):
             basename = os.path.basename(local_path)
             remote_path = posixpath.join(remote_path, basename)
         if output.running:
-            print("[%s] put: %s -> %s" % (
+            print("[{0!s}] put: {1!s} -> {2!s}".format(
                 env.host_string,
                 _format_local(local_path, local_is_path),
                 posixpath.join(pre, remote_path)
@@ -279,14 +279,14 @@ class SFTP(object):
                     # command. (The target path has already been cwd-ified
                     # elsewhere.)
                     with settings(hide('everything'), cwd=""):
-                        sudo('chmod %o \"%s\"' % (lmode, remote_path))
+                        sudo('chmod {0:o} \"{1!s}\"'.format(lmode, remote_path))
                 else:
                     self.ftp.chmod(remote_path, lmode)
         if use_sudo:
             # Temporarily nuke 'cwd' so sudo() doesn't "cd" its mv command.
             # (The target path has already been cwd-ified elsewhere.)
             with settings(hide('everything'), cwd=""):
-                sudo("mv \"%s\" \"%s\"" % (remote_path, target_path))
+                sudo("mv \"{0!s}\" \"{1!s}\"".format(remote_path, target_path))
             # Revert to original remote_path for return value's sake
             remote_path = target_path
         return remote_path
