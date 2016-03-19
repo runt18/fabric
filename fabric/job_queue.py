@@ -53,7 +53,7 @@ class JobQueue(object):
         to stop looping, and pop dead procs off and add live ones.
         """
         if self._running:
-            return all([x.is_alive() for x in self._running])
+            return all( x.is_alive() for x in self._running)
         else:
             return False
 
