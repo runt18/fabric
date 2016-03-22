@@ -574,7 +574,7 @@ def test_list_output():
         debian:
             update_apt"""),
     ):
-        list_output.description = "--list output: %s" % desc
+        list_output.description = "--list output: {0!s}".format(desc)
         yield list_output, module, format_, expected
         del list_output.description
 
@@ -623,7 +623,7 @@ def test_task_names():
             ['h', 'z', 'b.c', 'b.g', 'b.d.e.f', 'w.y']
         ),
     ):
-        eq_.description = "task name flattening: %s" % desc
+        eq_.description = "task name flattening: {0!s}".format(desc)
         yield eq_, _task_names(strings_to_tasks(input_)), output
         del eq_.description
 
@@ -635,7 +635,7 @@ def test_crawl():
         ("deep", 'a.b.c.d.e', {'a': {'b': {'c': {'d': {'e': 5}}}}}, 5),
         ("full tree", 'a.b.c', {'a': {'b': {'c': 5}, 'd': 6}, 'z': 7}, 5)
     ):
-        eq_.description = "crawling dotted names: %s" % desc
+        eq_.description = "crawling dotted names: {0!s}".format(desc)
         yield eq_, _crawl(name, mapping), output
         del eq_.description
 
@@ -662,7 +662,7 @@ mymodule.long_task_name"""),
     mymodule:
         long_task_name""")
     ):
-        list_output.description = "Default task --list output: %s" % format_
+        list_output.description = "Default task --list output: {0!s}".format(format_)
         yield list_output, 'default_tasks', format_, expected
         del list_output.description
 

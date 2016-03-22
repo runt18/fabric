@@ -35,7 +35,7 @@ def test_indent():
         ("List of strings turns in to strings joined by \\n",
             ["Test", "Test"], '    Test\n    Test'),
     ):
-        eq_.description = "indent(): %s" % description
+        eq_.description = "indent(): {0!s}".format(description)
         yield eq_, indent(input), output
         del eq_.description
 
@@ -50,7 +50,7 @@ def test_indent_with_strip():
             indent(["        Test", "        Test"], strip=True),
             '    Test\n    Test'),
     ):
-        eq_.description = "indent(strip=True): %s" % description
+        eq_.description = "indent(strip=True): {0!s}".format(description)
         yield eq_, input, output
         del eq_.description
 
@@ -163,7 +163,7 @@ def test_puts_with_prefix():
     h = "localhost"
     with settings(host_string=h):
         puts(s)
-    eq_(sys.stdout.getvalue(), "[%s] %s" % (h, s + "\n"))
+    eq_(sys.stdout.getvalue(), "[{0!s}] {1!s}".format(h, s + "\n"))
 
 
 @mock_streams('stdout')
@@ -174,7 +174,7 @@ def test_puts_without_prefix():
     s = "my output"
     h = "localhost"
     puts(s, show_prefix=False)
-    eq_(sys.stdout.getvalue(), "%s" % (s + "\n"))
+    eq_(sys.stdout.getvalue(), "{0!s}".format((s + "\n")))
 
 @with_fakes
 def test_fastprint_calls_puts():

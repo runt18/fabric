@@ -14,8 +14,8 @@ from utils import Integration
 
 
 def assert_mode(path, mode):
-    remote_mode = run("stat -c \"%%a\" \"%s\"" % path).stdout
-    assert remote_mode == mode, "remote %r != expected %r" % (remote_mode, mode)
+    remote_mode = run("stat -c \"%a\" \"{0!s}\"".format(path)).stdout
+    assert remote_mode == mode, "remote {0!r} != expected {1!r}".format(remote_mode, mode)
 
 
 class TestOperations(Integration):
@@ -25,18 +25,18 @@ class TestOperations(Integration):
 
     def setup(self):
         super(TestOperations, self).setup()
-        run("mkdir -p %s" % " ".join([self.dirpath, self.not_owned]))
+        run("mkdir -p {0!s}".format(" ".join([self.dirpath, self.not_owned])))
 
     def teardown(self):
         super(TestOperations, self).teardown()
         # Revert any chown crap from put sudo tests
-        sudo("chown %s ." % env.user)
+        sudo("chown {0!s} .".format(env.user))
         # Nuke to prevent bleed
-        sudo("rm -rf %s" % " ".join([self.dirpath, self.filepath]))
-        sudo("rm -rf %s" % self.not_owned)
+        sudo("rm -rf {0!s}".format(" ".join([self.dirpath, self.filepath])))
+        sudo("rm -rf {0!s}".format(self.not_owned))
 
     def test_no_trailing_space_in_shell_path_in_run(self):
-        put(StringIO("#!/bin/bash\necho hi"), "%s/myapp" % self.dirpath, mode="0755")
+        put(StringIO("#!/bin/bash\necho hi"), "{0!s}/myapp".format(self.dirpath), mode="0755")
         with path(self.dirpath):
             assert run('myapp').stdout == 'hi'
 
@@ -49,7 +49,7 @@ class TestOperations(Integration):
         assert_mode(self.filepath, "755")
 
     def _chown(self, target):
-        sudo("chown root %s" % target)
+        sudo("chown root {0!s}".format(target))
 
     def _put_via_sudo(self, source=None, target_suffix='myfile', **kwargs):
         # Ensure target dir prefix is not owned by our user (so we fail unless
@@ -91,7 +91,7 @@ class TestOperations(Integration):
         subdir_abs = posixpath.join(target_dir, subdir)
         filename = "whatever.txt"
         target_file = posixpath.join(subdir_abs, filename)
-        run("mkdir -p %s" % subdir_abs)
+        run("mkdir -p {0!s}".format(subdir_abs))
         self._chown(subdir_abs)
         local_path = os.path.join('/tmp', filename)
         with open(local_path, 'w+') as fd:
@@ -106,15 +106,15 @@ class TestOperations(Integration):
         # localhosts
         source = 'whatever.txt'
         try:
-            local("touch %s" % source)
-            local("chmod 644 %s" % source)
+            local("touch {0!s}".format(source))
+            local("chmod 644 {0!s}".format(source))
             # Target for _put_via_sudo is a directory by default
             uploaded = self._put_via_sudo(
                 source=source, mirror_local_mode=True
             )
             assert_mode(uploaded[0], '644')
         finally:
-            local("rm -f %s" % source)
+            local("rm -f {0!s}".format(source))
 
     def test_put_directory_use_sudo_and_spaces(self):
         localdir = 'I have spaces'
@@ -138,9 +138,9 @@ class TestOperations(Integration):
     def test_get_with_use_sudo_unowned_file(self):
         # Ensure target is not normally readable by us
         target = self.filepath
-        sudo("echo 'nope' > %s" % target)
-        sudo("chown root:root %s" % target)
-        sudo("chmod 0440 %s" % target)
+        sudo("echo 'nope' > {0!s}".format(target))
+        sudo("chown root:root {0!s}".format(target))
+        sudo("chmod 0440 {0!s}".format(target))
         # Pull down with use_sudo, confirm contents
         local_ = StringIO()
         result = get(
@@ -157,12 +157,12 @@ class TestOperations(Integration):
         # temp file is chmod 404 which seems to cause perm denied due to group
         # membership (despite 'other' readability).
         target = self.filepath
-        sudo("echo 'nope' > %s" % target)
+        sudo("echo 'nope' > {0!s}".format(target))
         # Same group as connected user
         gid = run("id -g")
-        sudo("chown root:%s %s" % (gid, target))
+        sudo("chown root:{0!s} {1!s}".format(gid, target))
         # Same perms as bug use case (only really need group read)
-        sudo("chmod 0640 %s" % target)
+        sudo("chmod 0640 {0!s}".format(target))
         # Do eet
         local_ = StringIO()
         result = get(
@@ -174,12 +174,12 @@ class TestOperations(Integration):
 
     def test_get_from_unreadable_dir(self):
         # Put file in dir as normal user
-        remotepath = "%s/myfile.txt" % self.dirpath
-        run("echo 'foo' > %s" % remotepath)
+        remotepath = "{0!s}/myfile.txt".format(self.dirpath)
+        run("echo 'foo' > {0!s}".format(remotepath))
         # Make dir unreadable (but still executable - impossible to obtain
         # file if dir is both unreadable and unexecutable)
-        sudo("chown root:root %s" % self.dirpath)
-        sudo("chmod 711 %s" % self.dirpath)
+        sudo("chown root:root {0!s}".format(self.dirpath))
+        sudo("chmod 711 {0!s}".format(self.dirpath))
         # Try gettin' it
         local_ = StringIO()
         get(local_path=local_, remote_path=remotepath)

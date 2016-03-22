@@ -122,7 +122,7 @@ def test_cd_prefix():
 
     with cd(some_path):
         command_out = _prefix_commands('foo', "remote")
-        eq_(command_out, 'cd %s >/dev/null && foo' % some_path)
+        eq_(command_out, 'cd {0!s} >/dev/null && foo'.format(some_path))
 
 
 # def test_cd_prefix_on_win32():

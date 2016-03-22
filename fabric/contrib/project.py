@@ -114,12 +114,12 @@ def rsync_project(
         key_string = "-i " + " -i ".join(keys)
     # Port
     user, host, port = normalize(env.host_string)
-    port_string = "-p %s" % port
+    port_string = "-p {0!s}".format(port)
     # RSH
     rsh_string = ""
     rsh_parts = [key_string, port_string, ssh_opts]
     if any(rsh_parts):
-        rsh_string = "--rsh='ssh %s'" % " ".join(rsh_parts)
+        rsh_string = "--rsh='ssh {0!s}'".format(" ".join(rsh_parts))
     # Set up options part of string
     options_map = {
         'delete': '--delete' if delete else '',
@@ -128,7 +128,7 @@ def rsync_project(
         'default': default_opts,
         'extra': extra_opts,
     }
-    options = "%(delete)s%(exclude)s %(default)s %(extra)s %(rsh)s" % options_map
+    options = "{delete!s}{exclude!s} {default!s} {extra!s} {rsh!s}".format(**options_map)
     # Get local directory
     if local_dir is None:
         local_dir = '../' + getcwd().split(sep)[-1]
@@ -136,16 +136,16 @@ def rsync_project(
     if host.count(':') > 1:
         # Square brackets are mandatory for IPv6 rsync address,
         # even if port number is not specified
-        remote_prefix = "[%s@%s]" % (user, host)
+        remote_prefix = "[{0!s}@{1!s}]".format(user, host)
     else:
-        remote_prefix = "%s@%s" % (user, host)
+        remote_prefix = "{0!s}@{1!s}".format(user, host)
     if upload:
-        cmd = "rsync %s %s %s:%s" % (options, local_dir, remote_prefix, remote_dir)
+        cmd = "rsync {0!s} {1!s} {2!s}:{3!s}".format(options, local_dir, remote_prefix, remote_dir)
     else:
-        cmd = "rsync %s %s:%s %s" % (options, remote_prefix, remote_dir, local_dir)
+        cmd = "rsync {0!s} {1!s}:{2!s} {3!s}".format(options, remote_prefix, remote_dir, local_dir)
 
     if output.running:
-        print("[%s] rsync_project: %s" % (env.host_string, cmd))
+        print("[{0!s}] rsync_project: {1!s}".format(env.host_string, cmd))
     return local(cmd, capture=capture)
 
 
@@ -183,18 +183,18 @@ def upload_project(local_dir=None, remote_dir="", use_sudo=False):
     local_dir = local_dir.rstrip(os.sep)
 
     local_path, local_name = os.path.split(local_dir)
-    tar_file = "%s.tar.gz" % local_name
+    tar_file = "{0!s}.tar.gz".format(local_name)
     target_tar = os.path.join(remote_dir, tar_file)
     tmp_folder = mkdtemp()
 
     try:
         tar_path = os.path.join(tmp_folder, tar_file)
-        local("tar -czf %s -C %s %s" % (tar_path, local_path, local_name))
+        local("tar -czf {0!s} -C {1!s} {2!s}".format(tar_path, local_path, local_name))
         put(tar_path, target_tar, use_sudo=use_sudo)
         with cd(remote_dir):
             try:
-                runner("tar -xzf %s" % tar_file)
+                runner("tar -xzf {0!s}".format(tar_file))
             finally:
-                runner("rm -f %s" % tar_file)
+                runner("rm -f {0!s}".format(tar_file))
     finally:
-        local("rm -rf %s" % tmp_folder)
+        local("rm -rf {0!s}".format(tmp_folder))

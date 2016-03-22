@@ -27,7 +27,7 @@ def exists(path, use_sudo=False, verbose=False):
     behavior.
     """
     func = use_sudo and sudo or run
-    cmd = 'test -e %s' % _expand_path(path)
+    cmd = 'test -e {0!s}'.format(_expand_path(path))
     # If verbose, run normally
     if verbose:
         with settings(warn_only=True):
@@ -47,7 +47,7 @@ def is_link(path, use_sudo=False, verbose=False):
     change this.
     """
     func = sudo if use_sudo else run
-    cmd = 'test -L "$(echo %s)"' % path
+    cmd = 'test -L "$(echo {0!s})"'.format(path)
     args, kwargs = [], {'warn_only': True}
     if not verbose:
         args = [hide('everything')]
@@ -110,7 +110,7 @@ def upload_template(filename, destination, context=None, use_jinja=False,
         func = partial(func, pty=pty)
     # Normalize destination to be an actual filename, due to using StringIO
     with settings(hide('everything'), warn_only=True):
-        if func('test -d %s' % _expand_path(destination)).succeeded:
+        if func('test -d {0!s}'.format(_expand_path(destination))).succeeded:
             sep = "" if destination.endswith('/') else "/"
             destination += sep + os.path.basename(filename)
 
@@ -150,7 +150,7 @@ def upload_template(filename, destination, context=None, use_jinja=False,
 
     # Back up original file
     if backup and exists(destination):
-        func("cp %s{,.bak}" % _expand_path(destination))
+        func("cp {0!s}{{,.bak}}".format(_expand_path(destination)))
 
     # Upload the file.
     return put(
@@ -198,16 +198,16 @@ def sed(filename, before, after, limit='', use_sudo=False, backup='.bak',
     func = use_sudo and sudo or run
     # Characters to be escaped in both
     for char in "/'":
-        before = before.replace(char, r'\%s' % char)
-        after = after.replace(char, r'\%s' % char)
+        before = before.replace(char, r'\{0!s}'.format(char))
+        after = after.replace(char, r'\{0!s}'.format(char))
     # Characters to be escaped in replacement only (they're useful in regexen
     # in the 'before' part)
     for char in "()":
-        after = after.replace(char, r'\%s' % char)
+        after = after.replace(char, r'\{0!s}'.format(char))
     if limit:
-        limit = r'/%s/ ' % limit
+        limit = r'/{0!s}/ '.format(limit)
     context = {
-        'script': r"'%ss/%s/%s/%sg'" % (limit, before, after, flags),
+        'script': r"'{0!s}s/{1!s}/{2!s}/{3!s}g'".format(limit, before, after, flags),
         'filename': _expand_path(filename),
         'backup': backup
     }
@@ -220,7 +220,7 @@ def sed(filename, before, after, limit='', use_sudo=False, backup='.bak',
         hasher = hashlib.sha1()
         hasher.update(env.host_string)
         hasher.update(filename)
-        context['tmp'] = "/tmp/%s" % hasher.hexdigest()
+        context['tmp'] = "/tmp/{0!s}".format(hasher.hexdigest())
         # Use temp file to work around lack of -i
         expr = r"""cp -p %(filename)s %(tmp)s \
 && sed -r -e %(script)s %(filename)s > %(tmp)s \
@@ -255,7 +255,7 @@ def uncomment(filename, regex, use_sudo=False, char='#', backup='.bak',
     """
     return sed(
         filename,
-        before=r'^([[:space:]]*)%s[[:space:]]?' % char,
+        before=r'^([[:space:]]*){0!s}[[:space:]]?'.format(char),
         after=r'\1',
         limit=regex,
         use_sudo=use_sudo,
@@ -306,11 +306,11 @@ def comment(filename, regex, use_sudo=False, char='#', backup='.bak',
     if regex.endswith('$'):
         dollar = '$'
         regex = regex[:-1]
-    regex = "%s(%s)%s" % (carot, regex, dollar)
+    regex = "{0!s}({1!s}){2!s}".format(carot, regex, dollar)
     return sed(
         filename,
         before=regex,
-        after=r'%s\1' % char,
+        after=r'{0!s}\1'.format(char),
         use_sudo=use_sudo,
         backup=backup,
         shell=shell
@@ -355,9 +355,9 @@ def contains(filename, text, exact=False, use_sudo=False, escape=True,
     if escape:
         text = _escape_for_regex(text)
         if exact:
-            text = "^%s$" % text
+            text = "^{0!s}$".format(text)
     with settings(hide('everything'), warn_only=True):
-        egrep_cmd = 'egrep "%s" %s' % (text, _expand_path(filename))
+        egrep_cmd = 'egrep "{0!s}" {1!s}'.format(text, _expand_path(filename))
         return func(egrep_cmd, shell=shell).succeeded
 
 
@@ -410,7 +410,7 @@ def append(filename, text, use_sudo=False, partial=False, escape=True,
                          shell=shell)):
             continue
         line = line.replace("'", r"'\\''") if escape else line
-        func("echo '%s' >> %s" % (line, _expand_path(filename)))
+        func("echo '{0!s}' >> {1!s}".format(line, _expand_path(filename)))
 
 def _escape_for_regex(text):
     """Escape ``text`` to allow literal matching using egrep"""
@@ -424,4 +424,4 @@ def _escape_for_regex(text):
     return regex
 
 def _expand_path(path):
-    return '"$(echo %s)"' % path
+    return '"$(echo {0!s})"'.format(path)

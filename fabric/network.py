@@ -89,7 +89,7 @@ def get_gateway(host, port, cache, replace=False):
         # ensure initial gateway connection
         if replace or gateway not in cache:
             if output.debug:
-                print "Creating new gateway connection to %r" % gateway
+                print "Creating new gateway connection to {0!r}".format(gateway)
             cache[gateway] = connect(*normalize(gateway) + (cache, False))
         # now we should have an open gw connection and can ask it for a
         # direct-tcpip channel to the real target. (bypass cache's own
@@ -197,7 +197,7 @@ def ssh_config(host_string=None):
                 conf.parse(fd)
                 env._ssh_config = conf
         except IOError:
-            warn("Unable to load SSH config file '%s'" % path)
+            warn("Unable to load SSH config file '{0!s}'".format(path))
             return dummy
     host = parse_host_string(host_string or env.host_string)['host']
     return env._ssh_config.lookup(host)
@@ -237,10 +237,10 @@ def key_from_env(passphrase=None):
             # NOTE: this may not be the most secure thing; OTOH anybody running
             # the process must by definition have access to the key value,
             # so only serious problem is if they're logging the output.
-            sys.stderr.write("Trying to honor in-memory key %r\n" % env.key)
+            sys.stderr.write("Trying to honor in-memory key {0!r}\n".format(env.key))
         for pkey_class in (ssh.rsakey.RSAKey, ssh.dsskey.DSSKey):
             if output.debug:
-                sys.stderr.write("Trying to load it as %s\n" % pkey_class)
+                sys.stderr.write("Trying to load it as {0!s}\n".format(pkey_class))
             try:
                 return pkey_class.from_private_key(StringIO(env.key), passphrase)
             except Exception, e:
@@ -347,7 +347,7 @@ def denormalize(host_string):
     if r['port'] is not None and r['port'] != '22':
         port = ':' + r['port']
     host = r['host']
-    host = '[%s]' % host if port and host.count(':') > 1 else host
+    host = '[{0!s}]'.format(host) if port and host.count(':') > 1 else host
     return user + host + port
 
 
@@ -368,7 +368,7 @@ def join_host_strings(user, host, port=None):
         template = "%s@[%s]:%s" if host.count(':') > 1 else "%s@%s:%s"
         return template % (user, host, port)
     else:
-        return "%s@%s" % (user, host)
+        return "{0!s}@{1!s}".format(user, host)
 
 
 def normalize_to_string(host_string):
@@ -462,7 +462,7 @@ def connect(user, host, port, cache, seek_gateway=True):
         # command line results in the big banner error about man-in-the-middle
         # attacks.
         except ssh.BadHostKeyException, e:
-            raise NetworkError("Host key for %s did not match pre-existing key! Server's key was changed recently, or possible man-in-the-middle attack." % host, e)
+            raise NetworkError("Host key for {0!s} did not match pre-existing key! Server's key was changed recently, or possible man-in-the-middle attack.".format(host), e)
         # Prompt for new password to try on auth failure
         except (
             ssh.AuthenticationException,
@@ -540,16 +540,16 @@ def connect(user, host, port, cache, seek_gateway=True):
             sys.exit(0)
         # Handle DNS error / name lookup failure
         except socket.gaierror, e:
-            raise NetworkError('Name lookup failed for %s' % host, e)
+            raise NetworkError('Name lookup failed for {0!s}'.format(host), e)
         # Handle timeouts and retries, including generic errors
         # NOTE: In 2.6, socket.error subclasses IOError
         except socket.error, e:
             not_timeout = type(e) is not socket.timeout
             giving_up = _tried_enough(tries)
             # Baseline error msg for when debug is off
-            msg = "Timed out trying to connect to %s" % host
+            msg = "Timed out trying to connect to {0!s}".format(host)
             # Expanded for debug on
-            err = msg + " (attempt %s of %s)" % (tries, env.connection_attempts)
+            err = msg + " (attempt {0!s} of {1!s})".format(tries, env.connection_attempts)
             if giving_up:
                 err += ", giving up"
             err += ")"
@@ -565,13 +565,13 @@ def connect(user, host, port, cache, seek_gateway=True):
                 continue
             # Override eror msg if we were retrying other errors
             if not_timeout:
-                msg = "Low level socket error connecting to host %s on port %s: %s" % (
+                msg = "Low level socket error connecting to host {0!s} on port {1!s}: {2!s}".format(
                     host, port, e[1]
                 )
             # Here, all attempts failed. Tweak error msg to show # tries.
             # TODO: find good humanization module, jeez
             s = "s" if env.connection_attempts > 1 else ""
-            msg += " (tried %s time%s)" % (env.connection_attempts, s)
+            msg += " (tried {0!s} time{1!s})".format(env.connection_attempts, s)
             raise NetworkError(msg, e)
         # Ensure that if we terminated without connecting and we were given an
         # explicit socket, close it out.
@@ -606,7 +606,7 @@ def prompt_for_password(prompt=None, no_colon=False, stream=None):
     handle_prompt_abort("a connection or sudo password")
     stream = stream or sys.stderr
     # Construct prompt
-    default = "[%s] Login password for '%s'" % (env.host_string, env.user)
+    default = "[{0!s}] Login password for '{1!s}'".format(env.host_string, env.user)
     password_prompt = prompt if (prompt is not None) else default
     if not no_colon:
         password_prompt += ": "
@@ -664,7 +664,7 @@ def disconnect_all():
         if output.status:
             # Here we can't use the py3k print(x, end=" ")
             # because 2.5 backwards compatibility
-            sys.stdout.write("Disconnecting from %s... " % denormalize(key))
+            sys.stdout.write("Disconnecting from {0!s}... ".format(denormalize(key)))
         connections[key].close()
         del connections[key]
         if output.status:

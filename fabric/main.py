@@ -291,7 +291,7 @@ def parse_options():
         choices=LIST_FORMAT_OPTIONS,
         default='normal',
         metavar='FORMAT',
-        help="formats --list, choices: %s" % ", ".join(LIST_FORMAT_OPTIONS)
+        help="formats --list, choices: {0!s}".format(", ".join(LIST_FORMAT_OPTIONS))
     )
 
     parser.add_option('-I', '--initial-password-prompt',
@@ -478,13 +478,13 @@ def display_command(name):
     else:
         task_details = get_task_details(command)
     if task_details:
-        print("Displaying detailed information for task '%s':" % name)
+        print("Displaying detailed information for task '{0!s}':".format(name))
         print('')
         print(indent(task_details, strip=True))
         print('')
     # Or print notice if not
     else:
-        print("No detailed information available for task '%s':" % name)
+        print("No detailed information available for task '{0!s}':".format(name))
     sys.exit(0)
 
 
@@ -495,7 +495,7 @@ def _escape_split(sep, argstr):
     It should be noted that the way bash et. al. do command line parsing, those
     single quotes are required.
     """
-    escaped_sep = r'\%s' % sep
+    escaped_sep = r'\{0!s}'.format(sep)
 
     if escaped_sep not in argstr:
         return argstr.split(sep)
@@ -633,8 +633,8 @@ def main(fabfile_locations=None):
 
         # Handle version number option
         if options.show_version:
-            print("Fabric %s" % state.env.version)
-            print("Paramiko %s" % ssh.__version__)
+            print("Fabric {0!s}".format(state.env.version))
+            print("Paramiko {0!s}".format(ssh.__version__))
             sys.exit(0)
 
         # Load settings from user settings file, into shared env dict.
@@ -673,7 +673,7 @@ Remember that -f can be used to specify fabfile path, and use -h for help.""")
         # Now that we're settled on a fabfile, inform user.
         if state.output.debug:
             if fabfile:
-                print("Using fabfile '%s'" % fabfile)
+                print("Using fabfile '{0!s}'".format(fabfile))
             else:
                 print("No fabfile loaded -- remainder command only")
 
@@ -710,8 +710,7 @@ Remember that -f can be used to specify fabfile path, and use -h for help.""")
 
         # Abort if any unknown commands were specified
         if unknown_commands and not state.env.get('skip_unknown_tasks', False):
-            warn("Command(s) not found:\n%s" \
-                % indent(unknown_commands))
+            warn("Command(s) not found:\n{0!s}".format(indent(unknown_commands)))
             show_commands(None, options.list_format, 1)
 
         # Generate remainder command and insert into commands, commands_to_run
@@ -731,7 +730,7 @@ Remember that -f can be used to specify fabfile path, and use -h for help.""")
 
         if state.output.debug:
             names = ", ".join(x[0] for x in commands_to_run)
-            print("Commands to run: %s" % names)
+            print("Commands to run: {0!s}".format(names))
 
         # At this point all commands must exist, so execute them in order.
         for name, args, kwargs, arg_hosts, arg_roles, arg_exclude_hosts in commands_to_run:
